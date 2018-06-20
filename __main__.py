@@ -1,12 +1,17 @@
 
 from itertools import count
 from bs4 import BeautifulSoup
-
+import pandas as pd
+import urllib
+import xml.etree.ElementTree as et
 import collection.crawler as cw
+from collection.data_dict import sido_dict, gungu_dict
+
+RESULT_DIRECTORY = '__result__/crawling'
 
 def crawling_pericana():
     results = []
-    #for page in range(1,2):
+    #for page in range(1,3):
     for page in count(start=1):
          url = 'http://www.pelicana.co.kr/store/stroe_search.html?gu=&si=&page=%d' % page
          html = cw.crawling(url=url)
@@ -31,17 +36,74 @@ def crawling_pericana():
 
              results.append( (name, address) + tuple(sidogu)) #튜플만들기
 
-    print(results)
+    #store
+    table = pd.DataFrame(results, columns=['name','address','sido','gungu'])
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v))
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+
+    table.to_csv(
+        '{0}/pericana_table.csv'.format(RESULT_DIRECTORY),
+         encoding='utf-8',
+         mode='w',
+         index=True)
 
 
+    #print(results)
 
+def proc_nene(xml):
+    root = et.fromstring(xml)
+    results = []
+
+    elements_item = root.findall('item')
+    for el in elements_item:
+        name = el.findtext('aname1')
+        sido = el.findtext('aname2')
+        gungu = el.findtext('aname3')
+        address = el.findtext('aname5')
+
+        results.append((name, address, sido, gungu))
+
+    return results
+
+
+def store_nene(data):
+    table = pd.DataFrame(data, columns=['name','address','sido','gungu'])
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v))
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+
+    table.to_csv(
+        '{0}/nene_table.csv'.format(RESULT_DIRECTORY),
+         encoding='utf-8',
+         mode='w',
+         index=True)
+
+"""
+def crawling_kyochon():
+    for sido1 in range(1,18):
+        for sido2 in count(start=1):
+            if condition:
+                break
+"""
 
 
 
 
 if __name__ == '__main__':
+
     #pelicanas
-    crawling_pericana()
+    #crawling_pericana()
+
+    #nene
+    """
+    cw.crawling(
+        url='http://nenechicken.com/subpage/where_list.asp?target_step2=%s&proc_type=step1&target_step1=%s'
+            % (urllib.parse.quote("전체"), urllib.parse.quote("전체")),
+        proc = proc_nene,
+        store = store_nene)
+    """
+
+    #kyochon
+    #crawling_kyochon()
 
 
 

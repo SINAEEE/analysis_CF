@@ -12,7 +12,7 @@ def crawling(
         encoding = 'utf-8',
         proc = lambda html: html, #통과코드
         store=lambda html: html,
-        err=lambda e: print('%s : %s' % (e.datetime.now()),file=sys.stderr)):
+        err=lambda e: print('%s : %s' % (e, datetime.now()), file=sys.stderr)):
     try:
         request = Request(url)
         resp = urlopen(request)
