@@ -14,15 +14,19 @@ RESULT_DIRECTORY = '__result__/crawling'
 
 def crawling_pericana():
     results = []
-    #for page in range(1,3):
-    for page in count(start=1):
+    for page in range(1,3):
+    #for page in count(start=1):
          url = 'http://www.pelicana.co.kr/store/stroe_search.html?gu=&si=&page=%d' % page
          html = cw.crawling(url=url)
+         #print(html)
 
          bs = BeautifulSoup(html, 'html.parser')
          tag_table = bs.find('table', attrs={'class': 'table mt20'})
          tag_tbody = tag_table.find('tbody')
          tags_tr = tag_tbody.findAll('tr')
+         #print(type(tags_tr),tags_tr) #type : <class 'bs4.element.ResultSet'>
+         #print(len(tags_tr),tags_tr)
+
 
          #끝 검출
          if len(tags_tr) == 0:
@@ -37,12 +41,17 @@ def crawling_pericana():
              #print(address.split())
              sidogu = address.split()[:2]
 
-             results.append( (name, address) + tuple(sidogu)) #튜플만들기
+             results.append((name,address) + tuple(sidogu)) #튜플만들기
+
+             #print(results)
 
     #store
     table = pd.DataFrame(results, columns=['name','address','sido','gungu'])
-    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v))
-    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+    #print(table)
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v)) #서울:서울특별시
+    #->sido의 기존값을 sido_dict value와 비교하여 있으면 그대로, 없으면 넣는다
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v,v))
+    print(table)
 
     table.to_csv(
         '{0}/pericana_table.csv'.format(RESULT_DIRECTORY),
@@ -52,6 +61,7 @@ def crawling_pericana():
 
 
     #print(results)
+
 
 def proc_nene(xml):
     root = et.fromstring(xml)
@@ -80,13 +90,63 @@ def store_nene(data):
          mode='w',
          index=True)
 
-"""
+
 def crawling_kyochon():
+
+    results = []
     for sido1 in range(1,18):
+    #for sido1 in range(1, 5):
         for sido2 in count(start=1):
-            if condition:
+        #for sido2 in range(2,20):
+            url = 'http://www.kyochon.com/shop/domestic.asp?sido1=%d&sido2=%d&txtsearch=' % (sido1,sido2)
+            html = cw.crawling(url=url)
+
+            if html is None:
                 break
-"""
+
+            bs = BeautifulSoup(html, 'html.parser')
+            tag_ul = bs.find('ul', attrs={'class':'list'})
+            tag_li = tag_ul.find('li')
+            tag_a = tag_li.find('a')
+
+            tag_dl = tag_a.findAll('dl')
+            #print('%s : sucess for script execute [%s]' % (datetime.now(), tag_dl))
+
+
+            for dl in tag_dl:
+                strings = list(dl.strings)
+
+                #print(strings.strip())
+                try:
+                    name = strings[1]
+                    #print(name)
+                    address = strings[3].strip()
+                    sidogu = address.split()[:2]
+                    results.append((name, address) + tuple(sidogu))
+                except Exception as e:
+                    name is None
+
+
+        #print(results)
+
+        #store
+
+        table = pd.DataFrame(results, columns=['name','address','sido','gungu'])
+        table['sido'] = table.sido.apply(lambda v: sido_dict.get(v, v))
+        table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+        print(table)
+
+
+
+        table.to_csv(
+            '{0}/kyochon_table.csv'.format(RESULT_DIRECTORY),
+            encoding='utf-8',
+            mode='w',
+            index=True)
+
+
+
+
 
 def crawling_goobne():
     url = 'http://www.goobne.co.kr/store/search_store.jsp'
@@ -156,10 +216,10 @@ if __name__ == '__main__':
     """
 
     #kyochon
-    #crawling_kyochon()
+    crawling_kyochon()
 
     #goobne
-    crawling_goobne()
+    #crawling_goobne()
 
 
 

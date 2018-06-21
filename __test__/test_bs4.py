@@ -10,14 +10,11 @@ html =  '<td class="title">'\
 
 
 
-
-
-
-
 #1. tag 조회
 def ex1():
     bs = BeautifulSoup(html,'html.parser')
     print(bs)
+
 
     tag = bs.td
     print(tag)
@@ -26,6 +23,7 @@ def ex1():
     tag = bs.a
     print(tag)
     print(tag.name)
+
 
 #2. attribute 값
 def ex2():
@@ -51,5 +49,5 @@ def ex3():
 
 if __name__ == '__main__':
     #ex1()
-    #ex2()
-    ex3()
+    ex2()
+    #ex3()

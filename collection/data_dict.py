@@ -21,6 +21,8 @@ for aliasset in sido_alias.split():
     sido_dict.update({s[0]: s[1]})
 # sido_dict = dict(aliasset.split(':') for aliasset in sido_alias.split())
 
+#print(sido_dict)
+
 
 gungu_alias = """고양시일산서구:고양시 고양시덕양구:고양시 고양시일산동구:고양시
                 부천시오정구:부천시 부천시소사구:부천시 부천시원미구:부천시
@@ -54,3 +56,4 @@ for aliasset in gungu_alias.split():
     s = aliasset.split(':')
     gungu_dict.update({s[0]: s[1]})
 #gungu_dict = dict(aliasset.split(':') for aliasset in gungu_alias.split())
+

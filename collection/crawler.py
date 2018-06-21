@@ -10,8 +10,8 @@ from datetime import datetime
 def crawling(
         url='',
         encoding = 'utf-8',
-        proc = lambda html: html, #통과코드
-        store=lambda html: html,
+        proc = lambda html: html, #통과코드 #처리 #실행되는지 안되는지 확인
+        store=lambda html: html, #저장
         err=lambda e: print('%s : %s' % (e, datetime.now()), file=sys.stderr)):
     try:
         request = Request(url)
