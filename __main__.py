@@ -1,12 +1,14 @@
 import urllib
 from itertools import count
-from bs4 import BeautifulSoup
+from datetime import datetime
 import pandas as pd
+from bs4 import BeautifulSoup
 import xml.etree.ElementTree as et
 import time
 from selenium import webdriver
 import collection.crawler as cw
 from collection.data_dict import sido_dict, gungu_dict
+
 
 RESULT_DIRECTORY = '__result__/crawling'
 
@@ -95,13 +97,16 @@ def crawling_goobne():
     time.sleep(5)
     #print(wd.page_source)
 
-    for page in range(101,105):
+    results = []
+    for page in count(start=1):
+    #for page in range(1,2):
         #자바스크립트 실행
-        script = 'store.getList(%d)' % page
+        script = 'store.getList(%d)' % page #버튼 클릭시 매장리스트 정보 불러오는 것
         wd.execute_script(script)
+        print('%s : sucess for script execute [%s]' % (datetime.now(), script))
         time.sleep(5)
 
-        #실행결과 HTML(redering 된 HTML) 가져오기
+        #실행결과 HTML(rendering 된 HTML) 가져오기
         html = wd.page_source
 
         #parsing with bs4
@@ -113,9 +118,27 @@ def crawling_goobne():
         if tags_tr[0].get('class') is None:
             break
 
-        print(tag_tbody)
+        for tag_tr in tags_tr:
+            strings = list(tag_tr.strings)
+            name = strings[1]
+            address = strings[6]
+            sidogu = address.split()[:2]
 
+            results.append((name,address) + tuple(sidogu))
 
+    #print(results)
+
+    #store
+    table = pd.DataFrame(results,columns=['name','address','sido','gungu'])
+
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v))
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+
+    table.to_csv(
+        '{0}/goobne_table.csv'.format(RESULT_DIRECTORY),
+         encoding='utf-8',
+         mode='w',
+         index=True)
 
 
 if __name__ == '__main__':
