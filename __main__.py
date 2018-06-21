@@ -1,9 +1,10 @@
-
+import urllib
 from itertools import count
 from bs4 import BeautifulSoup
 import pandas as pd
-import urllib
 import xml.etree.ElementTree as et
+import time
+from selenium import webdriver
 import collection.crawler as cw
 from collection.data_dict import sido_dict, gungu_dict
 
@@ -85,6 +86,35 @@ def crawling_kyochon():
                 break
 """
 
+def crawling_goobne():
+    url = 'http://www.goobne.co.kr/store/search_store.jsp'
+
+    #첫 페이지 로딩
+    wd = webdriver.Chrome('D:/bigdatastudy/chromedriver/chromedriver.exe')
+    wd.get(url)
+    time.sleep(5)
+    #print(wd.page_source)
+
+    for page in range(101,105):
+        #자바스크립트 실행
+        script = 'store.getList(%d)' % page
+        wd.execute_script(script)
+        time.sleep(5)
+
+        #실행결과 HTML(redering 된 HTML) 가져오기
+        html = wd.page_source
+
+        #parsing with bs4
+        bs = BeautifulSoup(html,'html.parser')
+        tag_tbody = bs.find('tbody', attrs={'id':'store_list'})
+        tags_tr = tag_tbody.findAll('tr')
+
+        #마지막 검출
+        if tags_tr[0].get('class') is None:
+            break
+
+        print(tag_tbody)
+
 
 
 
@@ -105,27 +135,31 @@ if __name__ == '__main__':
     #kyochon
     #crawling_kyochon()
 
-
-
-"""
-#def my_error(e):
-#    print("my error : " + str(e))
-
-def proc(html):
-    print("processing..... " + html)
-
-def store(result):
-    pass
+    #goobne
+    crawling_goobne()
 
 
 
-result = cw.crawling(
-    url='http://movie.naver.com/movie/sdb/rank/rmovie.nhn',
-    encoding='cp949',
-    proc=proc,
-    store=store)
-    #err=my_error)
 
-print(result)
-#print("processing..."+result)
-"""
+    """
+    #def my_error(e):
+    #    print("my error : " + str(e))
+    
+    def proc(html):
+        print("processing..... " + html)
+    
+    def store(result):
+        pass
+    
+    
+    
+    result = cw.crawling(
+        url='http://movie.naver.com/movie/sdb/rank/rmovie.nhn',
+        encoding='cp949',
+        proc=proc,
+        store=store)
+        #err=my_error)
+    
+    print(result)
+    #print("processing..."+result)
+    """
