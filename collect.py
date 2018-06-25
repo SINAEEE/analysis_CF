@@ -54,7 +54,7 @@ def crawling_pericana():
     print(table)
 
     table.to_csv(
-        '{0}/pericana_table.csv'.format(RESULT_DIRECTORY),
+        '{0}/pelicana_table.csv'.format(RESULT_DIRECTORY),
          encoding='utf-8',
          mode='w',
          index=True)
