@@ -204,7 +204,7 @@ def crawling_goobne():
 if __name__ == '__main__':
 
     #pelicanas
-    crawling_pericana()
+    #crawling_pericana()
 
     #nene
     """
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     """
 
     #kyochon
-    #crawling_kyochon()
+    crawling_kyochon()
 
     #goobne
     #crawling_goobne()
